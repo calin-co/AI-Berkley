@@ -14,7 +14,7 @@
 
 from util import manhattanDistance
 from game import Directions
-import random, util
+import random, util, sys
 
 from game import Agent
 
@@ -143,7 +143,43 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
+        #print "NR agenti :" + str(gameState.getNumAgents())
+        gameStates = []
+        for action in gameState.getLegalActions(0):
+            newGS = gameState.generateSuccessor(0, action)
+            x = self.minimax(newGS,self.depth,1)
+            gameStates.append((x,action))
+
+        optimalAction = max(gameStates, key=lambda t: t[0])
+        return optimalAction[1]
         util.raiseNotDefined()
+
+    def minimax(self,gameState,depth,agentIdx):
+        gameStates = []
+        nextAgentIdx = 0
+        nextDepth = depth
+        if agentIdx == gameState.getNumAgents() - 1:
+            nextAgentIdx = 0
+            nextDepth = depth - 1
+
+        else:
+            nextAgentIdx = agentIdx + 1
+
+        if depth <= 0:
+            return (self.evaluationFunction(gameState))
+
+        for action in gameState.getLegalActions(agentIdx):
+            #print action
+            newGS = gameState.generateSuccessor(agentIdx, action)
+            x = self.minimax(newGS, nextDepth, nextAgentIdx)
+            gameStates.append(x)
+
+        if len(gameStates)==0:
+            return self.evaluationFunction(gameState)
+        if agentIdx == 0:
+            return max(gameStates)
+        else:
+            return min(gameStates)
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -170,7 +206,42 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        gameStates = []
+        for action in gameState.getLegalActions(0):
+            newGS = gameState.generateSuccessor(0, action)
+            x = self.minimax(newGS, self.depth, 1)
+            gameStates.append((x, action))
+
+        optimalAction = max(gameStates, key=lambda t: t[0])
+        return optimalAction[1]
+
+    def minimax(self, gameState, depth, agentIdx):
+        gameStates = []
+        nextAgentIdx = 0
+        nextDepth = depth
+        if agentIdx == gameState.getNumAgents() - 1:
+            nextAgentIdx = 0
+            nextDepth = depth - 1
+
+        else:
+            nextAgentIdx = agentIdx + 1
+
+        if depth <= 0:
+            return (self.evaluationFunction(gameState))
+
+        for action in gameState.getLegalActions(agentIdx):
+            # print action
+            newGS = gameState.generateSuccessor(agentIdx, action)
+            x = self.minimax(newGS, nextDepth, nextAgentIdx)
+            gameStates.append(x)
+
+        if len(gameStates) == 0:
+            return self.evaluationFunction(gameState)
+        if agentIdx == 0:
+            return max(gameStates)
+        else:
+            return float(sum(gameStates))/len(gameStates)
+
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -180,6 +251,28 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+    # Useful information you can extract from a GameState (pacman.py)
+    successorGameState = currentGameState
+    newPos = successorGameState.getPacmanPosition()
+    newFood = successorGameState.getFood()
+    newGhostStates = successorGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    ghostsPosition = successorGameState.getGhostPositions()
+
+    # works 100% if ou don't have walls
+    for ghostPos in ghostsPosition:
+        manDist = manhattanDistance(newPos, ghostPos)
+        if manDist < 2: return -100000
+
+    distToFood = [manhattanDistance(newPos, (i, j)) for i in range(newFood.width) for j in range(newFood.height) if
+                  newFood[i][j] == True]
+    distToFood.append(1000)
+    minDistToFood = min(distToFood)
+
+    if minDistToFood != 1000:
+        return (-100) * newFood.count(True) + (-1) * minDistToFood
+    else:
+        return 0
     util.raiseNotDefined()
 
 # Abbreviation
