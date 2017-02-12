@@ -191,7 +191,86 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        gameStates = []
+        maxOptim = -sys.maxint
+        minOptim = sys.maxint
+        _,optimalAction = self.MaxNodeAlg(gameState,maxOptim,minOptim,0,self.depth)
+        return optimalAction
+
+
+
+    def MaxNodeAlg(self, gameState, maxOptim, minOptim, agentIdx, depth):
+        val = - sys.maxint
+        optimalAction = None
+        gameStates = []
+        nextAgentIdx = 0
+        nextDepth = depth
+
+        if agentIdx == gameState.getNumAgents() - 1:
+            nextAgentIdx = 0
+            nextDepth = depth - 1
+        else:
+            nextAgentIdx = agentIdx + 1
+
+        if depth <= 0:
+            return (self.evaluationFunction(gameState), None)
+
+        actions = [action for action in gameState.getLegalActions(agentIdx)]
+        if len(actions) == 0:
+            return (self.evaluationFunction(gameState), None)
+
+        for action in actions:
+            newGS = gameState.generateSuccessor(agentIdx, action)
+            v,_ = self.MinNodeAlg(newGS, maxOptim, minOptim, nextAgentIdx, nextDepth)
+            val = max(v, val)
+
+            if val > minOptim:
+                return (val,None)
+
+            if val > maxOptim:
+                maxOptim = val
+                optimalAction = action
+
+        return (val, optimalAction)
+
+    def MinNodeAlg(self, gameState, maxOptim, minOptim, agentIdx, depth):
+        val = sys.maxint
+        gameStates = []
+        nextAgentIdx = 0
+        nextDepth = depth
+        optimalAction = None
+
+        if agentIdx == gameState.getNumAgents() - 1:
+            nextAgentIdx = 0
+            nextDepth = depth - 1
+        else:
+            nextAgentIdx = agentIdx + 1
+
+        if depth <= 0:
+            return (self.evaluationFunction(gameState), None)
+
+        actions = [action for action in gameState.getLegalActions(agentIdx)]
+        if len(actions) == 0:
+            return (self.evaluationFunction(gameState), None)
+
+        for action in actions:
+            newGS = gameState.generateSuccessor(agentIdx, action)
+
+            if nextAgentIdx == 0: # pacman node that means it is a max node
+                v,_ = self.MaxNodeAlg(newGS, maxOptim, minOptim, nextAgentIdx, nextDepth)
+            else:
+                v,_ = self.MinNodeAlg(newGS, maxOptim, minOptim, nextAgentIdx, nextDepth)
+            val = min(val, v)
+
+            if val < maxOptim:
+                return (v,None)
+
+            if val < minOptim:
+                minOptim = v
+                optimalAction = action
+
+        return (val, optimalAction)
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
