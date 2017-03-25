@@ -69,6 +69,7 @@ class ReflexAgent(Agent):
         score = 0
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
+        return 0
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
@@ -85,7 +86,7 @@ class ReflexAgent(Agent):
         minDistToFood = min(distToFood)
 
         if minDistToFood != 1000:
-            return (-80) * newFood.count(True) + (-1) * minDistToFood
+            return ( (-80) * newFood.count(True) + (-100) * minDistToFood )
         else:
             return 0
 
@@ -352,8 +353,6 @@ def betterEvaluationFunction(currentGameState):
         return (-100) * newFood.count(True) + (-1) * minDistToFood
     else:
         return 0
-    util.raiseNotDefined()
-
 # Abbreviation
 better = betterEvaluationFunction
 
