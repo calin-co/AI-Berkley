@@ -1,0 +1,46 @@
+topology : graph where nodes are conditional probabilty tables for the curent variable conditioned on its node parents
+the arrows in the graph represent conditional dependecies dependecies
+a conditional dependent on b given c means that b gives no plus information when c is knonw
+What is good for: easier computation of joint probabilty tables
+P(x1,x2,x3 ... xn) := P(x1) * P(x2 | x1) * P(x3 |x1,x2) * ... * P(xn | x1.. xn-1)
+
+In a bayes net given the fact that P(xi | x1 ... xn) = P(xi | Parents(xi)
+=> P(x1...xn) = Product(P(xi | Parents(xi))
+That leads to easier computations
+
+If I want to see if two variables are independent given some evidence, use the D-separation algorithm
+
+
+Inference by enumeration: 
+Given evidence e1 .. ek
+A query variable Q
+Hidden variables h1...hn
+Then to find P(Q| e1...ek)
+by definition P(Q|e1...ek) = P(Q,e1...ek) / P(e1...ek)
+to find out P(Q, e1...ek) sum out the hidden variables => P(Q, e1...ek) = Sum h1...hn of P(Q, e1...ek, h1...hn)
+followin same reason P(e1...ek) = sum out Q => Sum q of P(q,e1...ek)
+Then P(Q| e1...ek) = Sum h1...hn of P(Q, e1...ek, h1...hn) / Sum q of P(q,e1...ek)
+
+
+General variable elimination:
+Given evidence e1 .. ek
+A query variable Q
+Hidden variables h1...hn
+Then to find P(Q| e1...ek)
+While hidden variables exist
+    1 - Pick a hidden variable H
+    2 - Join all factors which have H
+    3 - Eliminate H
+4 - Join all remaining factors and normalize
+
+
+Inference by sampling
+Why: faster to compute gives an aproximate solution. If repeatead to infinity gives the exact solution
+Prior sampling : Just sample all the variables from the bayes net
+Rejection sampling: Given some evidence sample like prior sampling but reject samples inconsistent to evidence
+Likelihood sampling: Fix the evidence variable, sample like prior sampling to non-evidence variables, and at the end weight the 
+sample by the likelihood of evidence, in order to sample from the right distribution. Fault: evidence influences only the downstream 
+of the bayes net
+Gibs sampling: Start with a full instantiation, set the evidence variables and for the rest repeat the following procedure:
+ - Pick a variable at random
+ - Sample it with respect to all other variables which were set

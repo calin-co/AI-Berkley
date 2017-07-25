@@ -142,6 +142,7 @@ class QLearningAgent(ReinforcementAgent):
         # mai intai vad toate q(next_state si orice actiune)
         # iau maximum peste ele
         # check if Q(state,action) exist if not initialize it
+        #reward = -reward asa crawler o sa o ia inapoi
         if (state, action) not in self.Qvalue:  # initialize Q(state,action)
             self.Qvalue[(state, action)] = 0.0
 
